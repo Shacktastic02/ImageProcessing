@@ -8,8 +8,8 @@ finalImage = Image.new("RGB", (origImage.width, origImage.height))
 finalRaster = finalImage.load()
 
 vFlipMatrix = np.array([[1, 0, 0],
-                  [0, 1, origImage.height],
-                  [0, 0, 1]])
+                        [0, 1, origImage.height],
+                        [0, 0, 1]])
 
 for x in range(origImage.width):
     for y in range(origImage.height):
