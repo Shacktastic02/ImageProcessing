@@ -23,21 +23,43 @@ scaleUp = ["scaleUp", (w*2, h*2), np.array([[2, 0, 0],
 
 rads = math.radians(45)
 
-rotation = ["rotation", (w,h), np.array([[math.cos(rads), -math.sin(rads), 0],
+rotMatrix = ["rotation", (w,h), np.array([[math.cos(rads), -math.sin(rads), 0],
                                          [math.sin(rads), math.cos(rads), 0],
                                          [0, 0, 1]])]
 
-transforms = [horizTran, translate, scaleUp]
+corners = [np.array([0, 0, 1]), np.array([w, 0, 1]), np.array([w, h, 1]), np.array([0, h, 1])]
+
+rotCorners = [rotMatrix @ corner for corner in corners]
+
+xs = [rotCorner[0] for rotCorner in rotCorners]
+ys = [rotCorner[1] for rotCorner in rotCorners]
+
+newWid = int(max(xs) - min(xs))
+newHig = int(max(ys) - min(ys))
+newSiz = (newWid, newHig)
+
+upLeft = np.array([1, 0, -w/2],
+                  [0, 1, -h/2],
+                  [0, 0, 1])
+
+downRight = np.array([1, 0, newWid/2],
+                     [0, 1, newHig/2],
+                     [0, 0, 1])
+
+centRot = [downRight @ rotMatrix @ upLeft]
+
+rotation = ["rotation", newSiz, centRot]
+
+transforms = [horizTran, translate, scaleUp, rotation]
 
 for name, size, matrix in transforms:
     newImage = Image.new("RGB", size)
     newRaster = newImage.load()
     
-    invMatrix = np.linalg(matrix)
+    invMatrix = np.linalg.inv(matrix)
 
     for x in range(w):
         for y in range(h):
-            # pix = origRaster[x,y]
 
             vec = np.array([x, y, 1])
 
