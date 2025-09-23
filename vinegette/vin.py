@@ -2,7 +2,7 @@ from PIL import Image
 import math
 
 
-origImage = Image.open("./cat3.jpg")
+origImage = Image.open("./cat.jpg")
 origRast = origImage.load()
 
 center = (origImage.width/2, origImage.height/2)
@@ -27,5 +27,5 @@ for x in range(origImage.width):
         else:
             vinRast[x,y] = pix
 
-vinImage.save("./vin3.png")
+vinImage.save("./vin.png")
 
