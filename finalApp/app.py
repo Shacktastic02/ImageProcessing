@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, filedialog
 from PIL import ImageTk, Image
+import library
 
 # theme variables
 borderColor = "blue"
@@ -10,7 +11,6 @@ fillColor = "light blue"
 selectedOptions = []
 MAX_SIZE = (300, 300)
 origImage = None
-tempImg = None
 changedImg = None
 
 #################################################################################################button commands
@@ -18,9 +18,12 @@ changedImg = None
 def SelectFile():
     path = filedialog.askopenfilename()
     if path:
+        global origImage 
         origImage = Image.open(path)
-        tempImg = origImage
+
+        tempImg = origImage.copy()
         tempImg.thumbnail(MAX_SIZE)
+
         img1 = ImageTk.PhotoImage(tempImg)
         inImg.config(image= img1)
         inImg.image = img1
@@ -33,13 +36,34 @@ def SaveFile():
             changedImg.save(path)
 
 def RunJobs():
+    global changedImg 
+    changedImg = origImage.copy()
     for op in selectedOptions:
-        print(op[0])
-    changedImg = origImage
-    tempImg = changedImg
-    # tempImg.thumbnail(MAX_SIZE)
+        match op:
+            case ("Bayer Filter",_):
+                changedImg = library.bayer.BayerFilter(changedImg)
+
+            case ("Demosaic", _):
+                changedImg = library.bayer.Demosaic(changedImg)
+
+            case ("Red-green color blindness", _):
+                changedImg = library.blindsim.rg_sim(changedImg)
+
+            case ("Yellow-blue color blindness", _):
+                changedImg = library.blindsim.yb_sim(changedImg)
+
+            case ("Greyscale",_):
+                changedImg = library.greyScale.GreyScale(changedImg)
+
+            case ("Vinegette",_):
+                changedImg = library.vin.Vinegette(changedImg)
+
+            case _:
+                pass
+    tempImg = changedImg.copy()
+    tempImg.thumbnail(MAX_SIZE)
     img2 = ImageTk.PhotoImage(tempImg)
-    outImg.config(image=img1)
+    outImg.config(image=img2)
     outImg.image = img2
 
 def SelectJob(event):
@@ -88,7 +112,7 @@ inImg.grid(sticky="nsew")
 
 
 # filename
-inFileLabel = tk.Label(inPaneFrame, text="./placeholderText", background= fillColor)
+inFileLabel = tk.Label(inPaneFrame, text="No file selected", background= fillColor)
 inFileLabel.grid(sticky="nsew")
 
 # select file button
@@ -126,7 +150,10 @@ style = ttk.Style()
 style.configure("box.TCombobox", background= fillColor)
 opsSelect = ttk.Combobox(opsFrame, style="box.TCombobox")
 opsSelect.state(["readonly"])
-opsSelect['values'] = ("option 1", "option 2", "option 3")
+opsSelect['values'] = ("Bayer Filter", "Demosaic",
+                       "Red-green color blindness", "Yellow-blue color blindness", 
+                       "Greyscale",
+                       "Vinegette")
 opsSelect.grid(sticky="ew")
 opsSelect.bind("<<ComboboxSelected>>", SelectJob)
 
@@ -166,9 +193,14 @@ outLabel.grid(sticky="nsew")
 
 # output image
 
-img2 = None
-outImg = tk.Label(outFrame, image= img2, background= fillColor, width=40)
+tempImg = Image.open("./placeHolder.png")
+tempImg.thumbnail(MAX_SIZE)
+img2 = ImageTk.PhotoImage(tempImg)
+outImg = tk.Label(outFrame, image= img2, background= fillColor)
 outImg.grid(sticky="nsew")
+
+outSpacer = tk.Label(outFrame, text="Generated Image", background= fillColor)
+outSpacer.grid(sticky="nsew")
 
 # save file button
 saveButton = tk.Button(outFrame, text= "Save Image", background= fillColor, command=SaveFile)
@@ -177,7 +209,8 @@ saveButton.grid(sticky="nsew")
 # ++++++++++++++++++++++++++++++++++++++++++++++++++finalize pane
 outFrame.rowconfigure(0, weight=2)
 outFrame.rowconfigure(1, weight=4)
-outFrame.rowconfigure(2, weight=2)
+outFrame.rowconfigure(2, weight=1)
+outFrame.rowconfigure(3, weight=2)
 outFrame.columnconfigure(0, weight=1)
 
 outPane.grid(column=2, row=0, sticky="nsew")

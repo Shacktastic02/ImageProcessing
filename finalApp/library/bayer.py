@@ -1,17 +1,24 @@
 
 from PIL import Image
-from greyScale import GreyScale
 
 #create mosaiced bayer filter image
 def BayerFilter(img):
-    mosaic = Image.new("RGB", (img.width, img.height))
+    mosaic = img.copy()
     mosaicRast = mosaic.load()
-    origRast = img.load()
 
-    for y in range(img.height):
-        for x in range(img.width):
-            mosaicRast[x,y] = origRast[x,y]
-    mosaic = GreyScale(mosaic)
+    for y in range(mosaic.height):
+        for x in range(mosaic.width):
+            pix = mosaicRast[x,y]
+            r,g,b = pix
+            k = 0
+            if(x%2 != y%2):
+                k = g
+            else:
+                if(x%2 == 0):
+                    k = r
+                else:
+                    k = b
+            mosaicRast[x,y] = (k,k,k)
 
     for y in range(img.height):
         for x in range(img.width):
@@ -39,8 +46,8 @@ def Demosaic(img):
     deMosRast = deMos.load()
     origRast = img.load()
 
-    for y in range(img.height):
-        for x in range(img.width):
+    for y in range(deMos.height):
+        for x in range(deMos.width):
             upperLeft = (x*2, y*2)
 
             rPixel = origRast[upperLeft[0], upperLeft[1]]
@@ -49,6 +56,4 @@ def Demosaic(img):
             bPixel = origRast[upperLeft[0]+1, upperLeft[1]+1]
 
             deMosRast[x,y] = (rPixel[0], (gPixel1[1]+gPixel2[1])//2, bPixel[2])
-
     return deMos
-

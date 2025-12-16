@@ -13,7 +13,6 @@ def rg_sim(origImage):
             r = max(r,g)
             g = max(r, g)
             simRast[x,y] = (r,g,b)
-
     return simImage
 
 def yb_sim(origImage):
@@ -28,5 +27,5 @@ def yb_sim(origImage):
             b = max(b,g)
             g = max(b, g)
             simRast[x,y] = (r,g,b)
-
+    
     return simImage
