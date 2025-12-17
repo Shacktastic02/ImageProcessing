@@ -221,7 +221,7 @@ img2 = ImageTk.PhotoImage(tempImg)
 outImg = tk.Label(outFrame, image= img2, background= fillColor)
 outImg.grid(sticky="nsew")
 
-outSpacer = tk.Label(outFrame, text="Generated Image", background= fillColor)
+outSpacer = tk.Label(outFrame, text="   ", background= fillColor)
 outSpacer.grid(sticky="nsew")
 
 # save file button
