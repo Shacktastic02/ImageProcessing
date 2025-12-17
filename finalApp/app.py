@@ -52,8 +52,20 @@ def RunJobs():
             case ("Yellow-blue color blindness", _):
                 changedImg = library.blindsim.yb_sim(changedImg)
 
+            case ("Gaussian blur", _):
+                changedImg = library.blur.GausBlur(changedImg)
+
             case ("Greyscale",_):
                 changedImg = library.greyScale.GreyScale(changedImg)
+            
+            case ("Invert",_):
+                changedImg = library.inversion.Invert(changedImg)
+
+            case ("Sepia",_):
+                changedImg = library.sepia.Sepia(changedImg)
+
+            case ("Sepia (ms)",_):
+                changedImg = library.sepia.MSSepia(changedImg)
 
             case ("Vinegette",_):
                 changedImg = library.vin.Vinegette(changedImg)
@@ -74,7 +86,7 @@ def SelectJob(event):
     newOp.bind("<Button-1>", RemoveJob)
     selectedFrame.rowconfigure(i, weight=1)
     selectedOptions.append((job, newOp))
-    
+    ReGrid(selectedFrame)
 
 def RemoveJob(event):
     toRemove = event.widget
@@ -83,7 +95,13 @@ def RemoveJob(event):
             selectedOptions.remove(op)
             break
     toRemove.destroy()
+    ReGrid(selectedFrame)
 
+def ReGrid(parent):
+    i = 0
+    for widget in parent.winfo_children():
+        widget.grid(sticky="nsew", row=i)
+        i+=1
 
 
 #################################################################################################End button comands
@@ -151,8 +169,12 @@ style.configure("box.TCombobox", background= fillColor)
 opsSelect = ttk.Combobox(opsFrame, style="box.TCombobox")
 opsSelect.state(["readonly"])
 opsSelect['values'] = ("Bayer Filter", "Demosaic",
-                       "Red-green color blindness", "Yellow-blue color blindness", 
+                       "Red-green color blindness", "Yellow-blue color blindness",
+                       "Gaussian blur", 
                        "Greyscale",
+                       "Invert",
+                       "Sepia",
+                       "Sepia (ms)",
                        "Vinegette")
 opsSelect.grid(sticky="ew")
 opsSelect.bind("<<ComboboxSelected>>", SelectJob)
